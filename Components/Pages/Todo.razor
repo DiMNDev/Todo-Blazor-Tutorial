@@ -1,5 +1,89 @@
-﻿<h3>Todo</h3>
+﻿@page "/todo"
+@using BlazorSample
+@rendermode InteractiveServer
+
+<PageTitle>Todo</PageTitle>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+    <ul style="gap: 2rem;">
+        <h3>Todo (@currentTodos.Count(todo => !todo.IsDone))</h3>
+        <div style="display: flex; flex-direction: column; justify-content: center; gap: 1rem;">
+            <input @bind=newTodo placeholder="Something todo" />
+            <button @onclick=AddTodo>Add todo</button>
+        </div>
+        <div style="padding-top: 2rem;">
+            @foreach (var todo in currentTodos)
+            {
+                <div style="display: flex; justify-content: space-between; gap: 4rem;">
+                    <li>@todo.Title</li>
+                    <div>
+
+                        <button @onclick="()=>CompleteTodo(todo)">Complete</button>
+                        <button @onclick="()=>RemoveTodo(todo)">X</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </ul>
+    <ul>
+        <h3>Completed (@completedTodos.Count(todo => todo.IsDone))</h3>
+        @foreach (var todo in completedTodos)
+        {
+            <div style="display: flex; justify-content: space-between; width: 100%; gap: 4rem;">
+                <li>@todo.Title</li>
+                <button @onclick="()=>RemoveTodo(todo)">X</button>
+            </div>
+        }
+    </ul>
+    <ul>
+        <h3>Deleted (@deletedTodos.Count())</h3>
+        @foreach (var todo in deletedTodos)
+        {
+            <div style="display: flex; justify-content: space-between; width: 100%; gap: 4rem; color: darkgray;">
+                <li style="">@todo.Title</li>
+                @if (todo.IsDone == true)
+                {
+                    <p>Completed</p>
+                }
+                else
+                {
+                    <p>Incomplete</p>
+                }
+            </div>
+        }
+    </ul>
+</div>
+
 
 @code {
+    private List<TodoItem> currentTodos = new();
+    private List<TodoItem> completedTodos = new();
+    private List<TodoItem> deletedTodos = new();
+    private string? newTodo;
+
+    private void AddTodo()
+    {
+        if (!string.IsNullOrWhiteSpace(newTodo))
+        {
+            currentTodos.Add(new TodoItem { Title = newTodo });
+            newTodo = string.Empty;
+        }
+    }
+
+    private void RemoveTodo(TodoItem todo)
+    {
+        Console.WriteLine($"Remove {todo}");
+        deletedTodos.Add(todo);
+        completedTodos.Remove(todo);
+        currentTodos.Remove(todo);
+    }
+
+    private void CompleteTodo(TodoItem todo)
+    {
+        todo.IsDone = true;
+        completedTodos.Add(todo);
+        currentTodos.Remove(todo);
+    }
+
 
 }
